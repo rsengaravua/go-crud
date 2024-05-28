@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rsengaravua/go-crud/pkg/common/models"
 )
 
 type UpdateBookRequestBody struct {
@@ -12,7 +13,7 @@ type UpdateBookRequestBody struct {
 	Description string `json:"description"`
 }
 
-func (h handler) UpdateBook(ctx *gin.Context) {
+func (h *handler) UpdateBook(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	bookBody := UpdateBookRequestBody{}
@@ -22,9 +23,9 @@ func (h handler) UpdateBook(ctx *gin.Context) {
 		return
 	}
 
-	var book models.book
+	var book models.Book
 
-	if result := h.DB.First(&body, id); result.Error != nil {
+	if result := h.DB.First(&bookBody, id); result.Error != nil {
 		ctx.AbortWithError(http.StatusNotFound, result.Error)
 		return
 	}
