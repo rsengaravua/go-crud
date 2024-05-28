@@ -3,6 +3,7 @@ package db
 import (
 	"log"
 
+	"github.com/rsengaravua/go-crud/pkg/common/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -12,6 +13,6 @@ func Init(url string) *gorm.DB {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	db.AutoMigrate(&models.book{})
+	db.AutoMigrate(&models.Book{})
 	return db
 }
