@@ -8,6 +8,7 @@ import (
 )
 
 type AddBookRequestBody struct {
+	Id          int    `json:"id"`
 	Title       string `json:"title"`
 	Author      string `json:"author"`
 	Description string `json:"description"`
@@ -22,6 +23,7 @@ func (h *handler) AddBook(ctx *gin.Context) {
 	}
 
 	book := models.Book{
+		Id:          bookRequest.Id,
 		Title:       bookRequest.Title,
 		Author:      bookRequest.Author,
 		Description: bookRequest.Description,

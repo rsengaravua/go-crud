@@ -14,10 +14,10 @@ func RegisterRoutes(router *gin.Engine, db *gorm.DB) {
 		DB: db,
 	}
 
-	routes := router.Group("/books")
-	routes.GET("/", h.GetBooks)
-	routes.GET("/:id", h.GetBook)
-	routes.POST("/", h.AddBook)
-	routes.PUT("/:id", h.UpdateBook)
-	routes.DELETE("/:id", h.DeleteBook)
+	routes := router.Group("/v1")
+	routes.GET("/AllBooks", h.GetBooks)
+	routes.GET("/book/:id", h.GetBook)
+	routes.POST("/book", h.AddBook)
+	routes.PUT("/book/:id", h.UpdateBook)    // Corrected route definition for updating a book
+	routes.DELETE("/book/:id", h.DeleteBook) // Corrected route definition for deleting a book
 }
