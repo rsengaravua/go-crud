@@ -8,14 +8,13 @@ import (
 )
 
 type UpdateBookRequestBody struct {
-	// Id          int    `json:"id"`
 	Title       string `json:"title"`
 	Author      string `json:"author"`
 	Description string `json:"description"`
 }
 
 func (h *handler) UpdateBook(ctx *gin.Context) {
-	id := ctx.Param("id")
+	idStr := ctx.Param("id")
 
 	bookBody := UpdateBookRequestBody{}
 
@@ -26,16 +25,22 @@ func (h *handler) UpdateBook(ctx *gin.Context) {
 
 	var book models.Book
 
-	if result := h.DB.First(&bookBody, id); result.Error != nil {
+	// Fetch existing book
+	if result := h.DB.First(&book, "id = ?", idStr); result.Error != nil {
 		ctx.AbortWithError(http.StatusNotFound, result.Error)
 		return
 	}
 
+	// Update book attributes
 	book.Title = bookBody.Title
 	book.Author = bookBody.Author
 	book.Description = bookBody.Description
 
-	h.DB.Save(&book)
+	// Execute raw PostgreSQL query to update the book
+	if err := h.DB.Exec("UPDATE books SET title=?, author=?, description=? WHERE id=?", book.Title, book.Author, book.Description, idStr).Error; err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 
 	ctx.JSON(http.StatusOK, &book)
 }
