@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rsengaravua/go-crud/pkg/common/models"
 )
 
 type AddBookRequestBody struct {
@@ -12,7 +13,7 @@ type AddBookRequestBody struct {
 	Description string `json:"description"`
 }
 
-func (h handler) AddBook(ctx *gin.Context) {
+func (h *handler) AddBook(ctx *gin.Context) {
 	bookRequest := AddBookRequestBody{}
 
 	if err := ctx.BindJSON(&bookRequest); err != nil {
@@ -20,10 +21,11 @@ func (h handler) AddBook(ctx *gin.Context) {
 		return
 	}
 
-	var book models.book
-	book.Title = bookRequest.Title
-	book.Author = bookRequest.Author
-	book.Description = bookRequest.Description
+	book := models.Book{
+		Title:       bookRequest.Title,
+		Author:      bookRequest.Author,
+		Description: bookRequest.Description,
+	}
 
 	if result := h.DB.Create(&book); result.Error != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, result.Error)
