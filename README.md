@@ -9,15 +9,18 @@ This project is a simple CRUD (Create, Read, Update, Delete) application built u
 - **cmd/**: Contains the main application entry point.
   - **main.go**: The main file that initializes and starts the application.
   
-- **pkg/**: Contains the application's core logic and helper functions.
-  - **handlers/**: Contains the HTTP handlers for each endpoint.
-    - **handlers.go**: Defines the functions to handle HTTP requests.
-  - **models/**: Contains the data models.
+- **pkg/**: Contains the application's core logic and router setup.
+  - **books/controller**: Contains the HTTP handlers for each endpoint.
+    - **controller.go**: Defines the functions to handle HTTP requests.
+  - **common/models**: Contains the data models.
     - **models.go**: Defines the data structures used in the application.
-  - **repository/**: Contains the database interactions.
-    - **repository.go**: Implements CRUD operations for the database.
-  - **router/**: Contains the router setup.
-    - **router.go**: Defines the routes and associates them with handlers.
+  - **common/db**: Contains creation of the database and related operations.
+  - **books/**: Contains the all the api and database interactions.
+    - **add_book.go**: Defines database operations regarding adding a book into the database.
+    - **delete_book.go**: Defines database operations regarding removing a book from the database.
+    - **get_books.go**: Defines database operations regarding fetching all books from the database.
+    - **get_books.go**: Defines database operations regarding fetching th book using id from the database.
+    - **update_book.go**: Defines database operations regarding updating the book using id from the database.
 
 - **vendor/**: Contains the project's dependencies. (Managed by Go modules)
 
