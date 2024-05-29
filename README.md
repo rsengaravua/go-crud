@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is a simple CRUD (Create, Read, Update, Delete) application built using Go. It demonstrates how to build a RESTful API using Go with basic CRUD functionalities for managing data entries.
+This project is a simple CRUD (Create, Read, Update, Delete) application built using Go. It demonstrates how to build a RESTful API using Go with basic CRUD functionalities for managing data entries with Postgresql Database.
 
 ## Project Structure
 
