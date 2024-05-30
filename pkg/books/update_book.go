@@ -16,7 +16,7 @@ type UpdateBookRequestBody struct {
 func (h *handler) UpdateBook(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 
-	bookBody := UpdateBookRequestBody{}
+	bookBody := new(UpdateBookRequestBody)
 
 	if err := ctx.BindJSON(&bookBody); err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
