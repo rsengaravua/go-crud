@@ -37,27 +37,21 @@ func (h *handler) AddBook(ctx *gin.Context) {
 		Description: bookRequest.Description,
 	}
 
-	// Channel to receive the result of the goroutine
-	resultChan := make(chan Result)
+	// Define the SQL query
+	query := "INSERT INTO books (id, title, author, description) VALUES ($1, $2, $3, $4) RETURNING id"
 
-	// Run the database operation in a goroutine
-	go func() {
-		if result := h.DB.Create(&book); result.Error != nil {
-			resultChan <- Result{Book: book, Error: result.Error}
-			return
-		}
-		resultChan <- Result{Book: book, Error: nil}
-	}()
+	// Execute the query
+	var id int
+	err := h.DB.QueryRow(query, book.Id, book.Title, book.Author, book.Description).Scan(&id)
 
-	// Receive the result from the goroutine
-	result := <-resultChan
-
-	// Handle the result
-	if result.Error != nil {
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create book"})
 		return
 	}
 
+	// Update the book model with the returned ID
+	book.Id = id
+
 	// Respond with the created book
-	ctx.JSON(http.StatusCreated, &result.Book)
+	ctx.JSON(http.StatusCreated, &book)
 }

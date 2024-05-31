@@ -1,6 +1,7 @@
 package books
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,30 +15,34 @@ type UpdateBookRequestBody struct {
 }
 
 func (h *handler) UpdateBook(ctx *gin.Context) {
-	idStr := ctx.Param("id")
+	id := ctx.Param("id")
 
-	bookBody := new(UpdateBookRequestBody)
-
-	if err := ctx.BindJSON(&bookBody); err != nil {
+	var bookBody UpdateBookRequestBody
+	if err := ctx.ShouldBindJSON(&bookBody); err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	var book models.Book
-
-	// Fetch existing book
-	if result := h.DB.First(&book, "id = ?", idStr); result.Error != nil {
-		ctx.AbortWithError(http.StatusNotFound, result.Error)
+	// Execute raw PostgreSQL query to update the book
+	result, err := h.DB.Exec("UPDATE books SET title = $1, author = $2, description = $3 WHERE id = $4", bookBody.Title, bookBody.Author, bookBody.Description, id)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	// Update book attributes
-	book.Title = bookBody.Title
-	book.Author = bookBody.Author
-	book.Description = bookBody.Description
+	rowsAffected, err := result.RowsAffected()
+	if err != nil || rowsAffected == 0 {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	}
 
-	// Execute raw PostgreSQL query to update the book
-	if err := h.DB.Exec("UPDATE books SET title=?, author=?, description=? WHERE id=?", book.Title, book.Author, book.Description, idStr).Error; err != nil {
+	// Fetch the updated book details
+	var book models.Book
+	err = h.DB.QueryRow("SELECT id, title, author, description FROM books WHERE id = $1", id).Scan(&book.Id, &book.Title, &book.Author, &book.Description)
+	if err == sql.ErrNoRows {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	} else if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}

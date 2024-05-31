@@ -1,21 +1,44 @@
 package main
 
 import (
+	"database/sql"
+	"log"
+
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 	"github.com/rsengaravua/go-crud/pkg/books"
-	"github.com/rsengaravua/go-crud/pkg/common/db"
 	"github.com/spf13/viper"
 )
 
-func main() {
+func initConfig() {
 	viper.SetConfigFile("./pkg/common/envs/.env")
-	viper.ReadInConfig()
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Error reading config file: %v", err)
+	}
+}
 
-	port := viper.Get("PORT").(string)
-	dbUrl := viper.Get("DB_URL").(string)
+func initDB(dbUrl string) (*sql.DB, error) {
+	db, err := sql.Open("postgres", dbUrl)
+	if err != nil {
+		return nil, err
+	}
+	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
+func main() {
+	initConfig()
+
+	port := viper.GetString("PORT")
+	dbUrl := viper.GetString("DB_URL")
 
 	router := gin.Default()
-	dbHandler := db.Init(dbUrl)
+	dbHandler, err := initDB(dbUrl)
+	if err != nil {
+		log.Fatalf("Failed to connect to the database: %v", err)
+	}
 
 	books.RegisterRoutes(router, dbHandler)
 

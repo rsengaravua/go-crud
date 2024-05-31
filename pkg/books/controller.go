@@ -1,15 +1,16 @@
 package books
 
 import (
+	"database/sql"
+
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type handler struct {
-	DB *gorm.DB
+	DB *sql.DB
 }
 
-func RegisterRoutes(router *gin.Engine, db *gorm.DB) {
+func RegisterRoutes(router *gin.Engine, db *sql.DB) {
 	h := &handler{
 		DB: db,
 	}

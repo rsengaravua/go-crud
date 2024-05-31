@@ -8,10 +8,25 @@ import (
 )
 
 func (h *handler) GetBooks(ctx *gin.Context) {
-	var books []models.Book
+	rows, err := h.DB.Query("SELECT id, title, author, description FROM books")
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	defer rows.Close()
 
-	if result := h.DB.Find(&books); result.Error != nil {
-		ctx.AbortWithError(http.StatusNotFound, result.Error)
+	var books []models.Book
+	for rows.Next() {
+		var book models.Book
+		if err := rows.Scan(&book.Id, &book.Title, &book.Author, &book.Description); err != nil {
+			ctx.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		books = append(books, book)
+	}
+
+	if err := rows.Err(); err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 

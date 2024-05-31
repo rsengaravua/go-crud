@@ -4,18 +4,23 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rsengaravua/go-crud/pkg/common/models"
 )
 
 func (h *handler) DeleteBook(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	var book models.Book
-
-	if result := h.DB.First(&book, id); result.Error != nil {
-		ctx.AbortWithError(http.StatusNotFound, result.Error)
+	// Execute raw PostgreSQL query to delete the book
+	result, err := h.DB.Exec("DELETE FROM books WHERE id = $1", id)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	h.DB.Delete(&book)
+	rowsAffected, err := result.RowsAffected()
+	if err != nil || rowsAffected == 0 {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	ctx.Status(http.StatusOK)
 }
